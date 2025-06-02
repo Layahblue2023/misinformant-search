@@ -1,3 +1,4 @@
+/* Reset + Base */
 * {
   margin: 0;
   padding: 0;
@@ -7,174 +8,336 @@
 html {
   font-size: 62.5%;
 }
+
 body {
   background: rgb(3, 0, 31);
   color: white;
   font-family: "Poppins", "sans-serif";
+  overflow-x: hidden;
 }
 
+/* App Container: a flex row */
 .App {
-  min-height: 100vh;
   display: flex;
+  min-height: 100vh;
 }
 
+/* --------------------------- Hamburger Button --------------------------- */
+.hamburger {
+  position: fixed;
+  top: 1rem;
+  left: 0.5rem;
+  z-index: 2000;
+  background: rgba(58, 28, 30, 0.9);
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  display: none; /* hidden by default */
+  align-self: auto;
+}
+
+/* Show hamburger only on screens ≤ 800px */
+@media (max-width: 800px) {
+  .hamburger {
+    display: block;
+  }
+}
+
+/* --------------------------- Overlay (mobile) --------------------------- */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+/* --------------------------- Sidebar (always) --------------------------- */
 .sideBar {
-  flex: 3;
-  border-right: 1px solid rgb(100, 100, 100);
-}
-
-.main {
-  flex: 9;
-  min-height: calc(100vh - 14rem);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 6rem 10rem;
-  margin-bottom: 0;
+  height: 100vh; /* fill full viewport height */
+  width: 300px; /* fixed desktop width */
+  background: #1c1e3a;
+  border-right: 1px solid #646464;
+  transition: transform 0.3s ease;
+  z-index: 1500;
+  flex-shrink: 0;
 }
+
+/* When “closed” is applied, slide the sidebar off-screen */
+.sideBar.closed {
+  transform: translateX(-100%);
+}
+
+/* When “open” is applied (mobile), slide it into view */
+.sideBar.open {
+  transform: translateX(0);
+}
+
+/* --------------------------- Mobile Overrides (≤ 800px) --------------------------- */
+@media (max-width: 800px) {
+  .sideBar {
+    width: 260px; /* slightly narrower on mobile */
+    height: 100%; /* keep full height when fixed */
+  }
+}
+
+/* --------------------------- Sidebar Contents --------------------------- */
 .logo {
   margin-right: 0.5rem;
 }
+
 .upperSide {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto; /* fill vertical space above lowerSide */
   padding: 2.5rem;
-  border-bottom: 1px solid rgb(100, 100, 100);
-  height: 70%;
+  border-bottom: 2px solid rgb(100, 100, 100);
+  min-height: 0; /* critical: allows upperSideBottom to scroll */
 }
 
 .upperSideTop {
+  flex: 0 0 auto; /* logo + “New Claim” stay natural height */
+  display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin: 1 rem;
+  margin: 1rem 0;
+  padding: 0 2.5rem;
 }
+
+/* This list scrolls when it overflows */
 .upperSideBottom {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   align-items: center;
+  overflow-y: auto; /* scroll when content exceeds available space */
+  padding: 0 0.5rem;
+  min-height: 0; /* critical for correct flex overflow behavior */
 }
+
+/* Custom scrollbar styling (optional) */
+.upperSideBottom::-webkit-scrollbar {
+  width: 8px;
+}
+.upperSideBottom::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.upperSideBottom::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+}
+.upperSideBottom::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Firefox scrollbar styling */
+.upperSideBottom {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.6) rgba(255, 255, 255, 0.1);
+}
+
+.lowerSide {
+  flex: 0 0 auto; /* bottom menu stays its natural height */
+  padding: 2rem;
+  border-top: 2px solid rgb(100, 100, 100);
+  /* Inherits the same #1c1e3a background from .sideBar */
+}
+
 .addBtn {
   height: 2rem;
   padding-right: 1rem;
 }
+
 .midBtn {
   background: #5a4bff;
   border: none;
   color: white;
   padding: 1.5rem;
   font-size: 1.5rem;
-  width: 35rem;
+  width: 100%;
+  max-width: 35rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem auto;
   border-radius: 0.5rem;
 }
+
 .query {
   display: flex;
   align-items: center;
   background: transparent;
   padding: 1.5rem;
-  width: 25rem;
-  margin: 1 rem auto;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0.5rem auto;
   border-radius: 0.5rem;
-  border: 1px solid rgb(98, 98, 98, 1);
+  border: 2px solid rgb(98, 98, 98, 1);
   color: rgb(222, 222, 222, 1);
-  width: 35rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
+
 .query > img {
   margin-right: 2rem;
   object-fit: cover;
   height: 1.75rem;
 }
 
-.lowerSide {
-  padding: 2rem;
-}
 .listItems {
-  margin: 0.7rem;
+  margin: 0.7rem 0;
   display: flex;
   align-items: center;
   font-size: 1.5rem;
 }
+
 .listitemImg {
-  margin: 1rem;
-  padding-right: 1rem;
+  margin-right: 1rem;
+  height: 1.5rem;
+  object-fit: cover;
 }
-.listItems:nth-child(1) > .listitemImg {
-  margin-right: 0.5rem;
+
+/* --------------------------- Main Chat Area --------------------------- */
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0; /* grow to fill leftover space, shrink as needed */
+  min-height: 100vh;
+  padding: 5rem 2rem;
 }
-.listItems:nth-child(3) > .listitemImg {
-  margin-right: 0.75rem;
-}
+
 .chats {
-  overflow: hidden;
-  overflow-y: scroll;
-  scroll-behavior: smooth;
-  width: 200%;
-  max-width: 70rem;
-  height: calc(100vh-17rem);
+  flex: 1;
+  overflow-y: auto;
 }
+
 .chat {
-  margin: 1rem;
-  padding: 2rem 3rem;
-  font-size: 1.2rem;
   display: flex;
   align-items: flex-start;
-  text-align: justify;
-}
-.chatImg {
-  object-fit: cover;
-  width: 3.5rem;
-  margin-right: 2rem;
-  border-radius: 0.5rem;
-}
-.bot {
+  margin: 1rem 0;
+  padding: 1.5rem 2rem;
+  font-size: 1.5rem;
+  max-width: 95%;
+  word-break: break-word;
   background: rgba(28, 30, 58, 1);
-  width: fit-content;
   border-radius: 0.5rem;
 }
+
+.chat.bot {
+  align-self: flex-start;
+  background: rgba(28, 30, 58, 1);
+}
+
+.chat.user {
+  align-self: flex-end;
+  background: rgba(58, 28, 30, 1);
+}
+
+.chatImg {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.txt {
+  line-height: 1.5;
+  flex: 1;
+}
+
 .chatFooter {
   margin-top: auto;
   width: 100%;
   display: flex;
-  justify-content: center; /* center the input row horizontally */
-  padding: 1rem; /* give a bit of breathing room on mobile */
-  box-sizing: border-box;
-}
-.chatFooter > p {
-  margin: 2rem 0;
+  justify-content: center;
+  padding: 1rem 0;
 }
 
 .inp {
   display: flex;
   align-items: center;
-  width: 90%; /* take full width of parent */
-  max-width: 800px; /* but never get wider than this */
+  width: 100%;
+  max-width: 600px;
   background: rgba(28, 30, 58, 1);
   border-radius: 0.5rem;
   padding: 0.5rem;
-  box-sizing: border-box;
 }
 
 .inp > input {
   flex: 1;
-  min-width: 0;
-  padding: 1.25rem;
-  color: white;
-  background: transparent;
   border: none;
-  outline: none;
+  background: transparent;
+  padding: 1rem;
+  padding-right: 0.5rem;
+  color: white;
+  font-size: 1.4rem;
+  min-width: 0;
 }
 
 .send {
-  margin-left: auto;
   background: transparent;
   border: none;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .send img {
   width: 1.5rem;
   height: 1.5rem;
+}
+
+.main > p {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 800px) {
+  .chat {
+    padding: 1rem;
+    font-size: 1.3rem;
+    max-width: 90%;
+  }
+
+  .chatImg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .inp > input {
+    padding: 0.75rem;
+    font-size: 1.2rem;
+  }
+
+  .send img {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .query > img {
+    display: none;
+  }
+  .sideBar.closed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+  }
+  .sideBar.open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+  }
 }
