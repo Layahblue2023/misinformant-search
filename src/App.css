@@ -117,7 +117,7 @@ body {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
-  overflow-y: auto; /* scroll when content exceeds available space */
+  overflow-y: scroll; /* scroll when content exceeds available space */
   padding: 0 0.5rem;
   min-height: 0; /* critical for correct flex overflow behavior */
 }
