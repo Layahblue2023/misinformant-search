@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import misinformantLogo from "./assets/Misinformant.svg";
@@ -9,25 +10,32 @@ import rocket from "./assets/rocket.svg";
 import sendBtn from "./assets/send.svg";
 import userIcon from "./assets/user-icon.png";
 import shield from "./assets/logoShield.png";
+import { getClaims } from "./services/claimServices";
 
 function App() {
   // Initial bot message
   const initialBot = {
     id: Date.now(),
     speaker: "bot",
-    text: "Welcome to MisInformant! We’re on a mission to combat misinformation and illuminate the truth in a world of noise. Please upload your claim to get started.",
+    title: "Welcome to MisInformant!",
+    text: " We’re on a mission to combat misinformation and illuminate the truth in a world of noise. Please upload your claim to get started.",
   };
 
-  // State for chat
+  // State
   const [queryText, setQueryText] = useState("");
   const [claims, setClaims] = useState([]);
   const [chatHistory, setChatHistory] = useState([initialBot]);
 
-  // Sidebar open/closed & track window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 800);
 
-  // 1) Handle window resize: update width + auto-open on desktop
+  useEffect(() => {
+    getClaims().then((data) => {
+      // note: our mock returns ids, text, createdAt
+      setClaims(data);
+    });
+  }, []);
+  // Resize logic
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
@@ -38,79 +46,73 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 2) Prevent background scroll when sidebar is open on mobile
+  // Prevent scroll when mobile menu open
   useEffect(() => {
-    if (isSidebarOpen && windowWidth <= 800) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow =
+      isSidebarOpen && windowWidth <= 800 ? "hidden" : "auto";
   }, [isSidebarOpen, windowWidth]);
 
-  // 3) Close sidebar on Escape key (only on mobile)
+  // Close on Escape (mobile)
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const onKey = (e) => {
       if (e.key === "Escape" && isSidebarOpen && windowWidth <= 800) {
         setIsSidebarOpen(false);
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [isSidebarOpen, windowWidth]);
 
-  // Start a fresh chat, then close sidebar if on mobile
+  // New Chat
   const handleNewChat = () => {
     setChatHistory([initialBot]);
     setQueryText("");
-    if (windowWidth <= 800) {
-      setIsSidebarOpen(false);
-    }
+    if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // Send a message + save as a new claim; close sidebar if on mobile
+  // Send Message + add claim
   const handleSend = () => {
     if (!queryText.trim()) return;
-
-    const userMsg = { id: Date.now(), speaker: "user", text: queryText };
+    const now = new Date().toISOString();
+    const userMsg = {
+      id: Date.now(),
+      speaker: "user",
+      text: queryText,
+    };
     const botMsg = {
       id: Date.now() + 1,
       speaker: "bot",
       text: "Got it—your claim is queued! One moment while we process it…",
     };
-
-    setChatHistory((prev) => [...prev, userMsg, botMsg]);
-    setClaims((prev) => [...prev, { id: userMsg.id, text: userMsg.text }]);
+    setChatHistory((p) => [...p, userMsg, botMsg]);
+    setClaims((p) => [...p, { id: userMsg.id, title: queryText, date: now }]);
     setQueryText("");
   };
 
-  // Click a predefined query—reset chat + close sidebar if on mobile
-  const handleQueryClick = (text) => {
-    const userMsg = { id: Date.now(), speaker: "user", text };
+  // Predefined Query Click + add claim
+  const handleQueryClick = (title) => {
+    const now = new Date().toISOString();
+    const userMsg = { id: Date.now(), speaker: "user", text: title };
     const botMsg = {
       id: Date.now() + 1,
       speaker: "bot",
       text: "Got it—your claim is queued! One moment while we process it…",
     };
-
     setChatHistory([initialBot, userMsg, botMsg]);
-    setQueryText("");
 
-    if (windowWidth <= 800) {
-      setIsSidebarOpen(false);
-    }
+    setQueryText("");
+    if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // “Home”, “Saved”, or “Upgrade” items close sidebar on mobile
+  // Bottom nav
   const handleGenericSidebarClick = () => {
-    if (windowWidth <= 800) {
-      setIsSidebarOpen(false);
-    }
-    // Add any navigation logic here if desired
+    if (windowWidth <= 800) setIsSidebarOpen(false);
+    // navigate…
   };
 
   return (
     <div className="App">
-      {/* Hamburger (only shows on mobile ≤ 800px) */}
+      {/* Hamburger */}
       {windowWidth <= 800 && (
         <button
           className="hamburger"
@@ -123,7 +125,7 @@ function App() {
         </button>
       )}
 
-      {/* Overlay (clicking it closes the sidebar on mobile) */}
+      {/* Overlay */}
       {windowWidth <= 800 && isSidebarOpen && (
         <div
           className="overlay"
@@ -132,48 +134,51 @@ function App() {
         />
       )}
 
-      {/* Sidebar – always present, but “open”/“closed” classes control its transform */}
+      {/* Sidebar */}
       <div
         id="sidebar"
         className={`sideBar ${isSidebarOpen ? "open" : "closed"}`}
       >
         <div className="upperSide">
-          {/* upperSideTop = logo + “New Claim” */}
           <div className="upperSideTop">
             <img src={misinformantLogo} alt="Logo" className="logo" />
-
             <button type="button" className="midBtn" onClick={handleNewChat}>
-              <img src={addBtn} alt="" className="addBtn" /> New Claim
+              <img src={addBtn} alt="" className="addBtn" />
             </button>
           </div>
 
-          {/* upperSideBottom = previous queries (scrollable) */}
           <div className="upperSideBottom">
-            {claims.length === 0 && (
-              <>
-                <button
-                  className="query"
-                  onClick={() => handleQueryClick("Does bleach kill COVID-19?")}
-                >
-                  <img src={msgIcon} alt="" />
-                  Does bleach kill COVID-19?
-                </button>
-                <button
-                  className="query"
-                  onClick={() => handleQueryClick("Who owns Greenland?")}
-                >
-                  <img src={msgIcon} alt="" />
-                  Who owns Greenland?
-                </button>
-              </>
-            )}
-            {claims.map((c) => (
+            {(claims.length === 0
+              ? [
+                  {
+                    id: 1,
+                    title: "Does bleach kill COVID-19?",
+                    date: "2025-06-12T10:00:00Z",
+                  },
+                  {
+                    id: 2,
+                    title: "Who owns Greenland?",
+                    date: "2025-05-26T14:30:00Z",
+                  },
+                ]
+              : claims
+            ).map((c) => (
               <button
                 key={c.id}
                 className="query"
-                onClick={() => handleQueryClick(c.text)}
+                onClick={() => handleQueryClick(c.title)}
               >
-                <img src={msgIcon} alt="" /> {c.text}
+                <div className="queryContent">
+                  <img src={msgIcon} alt="" />
+                  <span>{c.title}</span>
+                </div>
+                <span className="queryDate">
+                  {new Date(c.date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
               </button>
             ))}
           </div>
@@ -192,7 +197,7 @@ function App() {
         </div>
       </div>
 
-      {/* Main chat area */}
+      {/* Main chat */}
       <div className="main">
         <div className="chats">
           {chatHistory.map((msg) => (
@@ -202,7 +207,12 @@ function App() {
                 src={msg.speaker === "bot" ? shield : userIcon}
                 alt={msg.speaker}
               />
-              <p className="txt">{msg.text}</p>
+              <div className="message-content">
+                {msg.speaker === "bot" && msg.title && (
+                  <h3 className="bot-heading">{msg.title}</h3>
+                )}
+                <p className="txt">{msg.text}</p>
+              </div>
             </div>
           ))}
         </div>

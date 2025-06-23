@@ -62,7 +62,7 @@ body {
   flex-direction: column;
   height: 100vh; /* fill full viewport height */
   width: 300px; /* fixed desktop width */
-  background: #1c1e3a;
+  background: #0d1d33;
   border-right: 1px solid #646464;
   transition: transform 0.3s ease;
   z-index: 1500;
@@ -82,8 +82,8 @@ body {
 /* --------------------------- Mobile Overrides (≤ 800px) --------------------------- */
 @media (max-width: 800px) {
   .sideBar {
-    width: 260px; /* slightly narrower on mobile */
-    height: 100%; /* keep full height when fixed */
+    width: 260px;
+    height: 100%;
   }
 }
 
@@ -95,14 +95,14 @@ body {
 .upperSide {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto; /* fill vertical space above lowerSide */
+  flex: 1 1 auto;
   padding: 2.5rem;
   border-bottom: 2px solid rgb(100, 100, 100);
-  min-height: 0; /* critical: allows upperSideBottom to scroll */
+  min-height: 0;
 }
 
 .upperSideTop {
-  flex: 0 0 auto; /* logo + “New Claim” stay natural height */
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -110,19 +110,18 @@ body {
   padding: 0 2.5rem;
 }
 
-/* This list scrolls when it overflows */
 .upperSideBottom {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  align-items: center;
-  overflow-y: scroll; /* scroll when content exceeds available space */
+  align-items: stretch;
+  overflow-y: auto;
   padding: 0 0.5rem;
-  min-height: 0; /* critical for correct flex overflow behavior */
+  min-height: 0;
 }
 
-/* Custom scrollbar styling (optional) */
+/* Custom scrollbar styling */
 .upperSideBottom::-webkit-scrollbar {
   width: 8px;
 }
@@ -137,18 +136,15 @@ body {
 .upperSideBottom::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.8);
 }
-
-/* Firefox scrollbar styling */
 .upperSideBottom {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.6) rgba(255, 255, 255, 0.1);
 }
 
 .lowerSide {
-  flex: 0 0 auto; /* bottom menu stays its natural height */
+  flex: 0 0 auto;
   padding: 2rem;
   border-top: 2px solid rgb(100, 100, 100);
-  /* Inherits the same #1c1e3a background from .sideBar */
 }
 
 .addBtn {
@@ -171,35 +167,55 @@ body {
   border-radius: 0.5rem;
 }
 
+/* ——— updated query styling ——— */
 .query {
   display: flex;
   align-items: center;
   background: transparent;
-  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.5rem;
   width: 100%;
   max-width: 35rem;
   margin: 0.5rem auto;
   border-radius: 0.5rem;
-  border: 2px solid rgb(98, 98, 98, 1);
   color: rgb(222, 222, 222, 1);
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
-
-.query > img {
-  margin-right: 2rem;
-  object-fit: cover;
-  height: 1.75rem;
+.query:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
+/* group icon + text */
+.queryContent {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  overflow: hidden;
+}
+.queryContent img {
+  height: 1.75rem;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* date stamp */
+.queryDate {
+  font-size: 1.2rem;
+  color: rgba(200, 200, 200, 0.8);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 1.5rem;
+}
+
+/* Old listItems/nav styles unchanged */
 .listItems {
   margin: 0.7rem 0;
   display: flex;
   align-items: center;
   font-size: 1.5rem;
 }
-
 .listitemImg {
   margin-right: 1rem;
   height: 1.5rem;
@@ -213,11 +229,15 @@ body {
   flex: 1 1 0; /* grow to fill leftover space, shrink as needed */
   min-height: 100vh;
   padding: 5rem 2rem;
+  max-width: 920px;
+  margin: 0 auto;
 }
 
 .chats {
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat {
@@ -226,34 +246,85 @@ body {
   margin: 1rem 0;
   padding: 1.5rem 2rem;
   font-size: 1.5rem;
-  max-width: 95%;
+  max-width: 100%;
   word-break: break-word;
   background: rgba(28, 30, 58, 1);
-  border-radius: 0.5rem;
+  border-radius: 3.5rem;
 }
 
 .chat.bot {
-  align-self: flex-start;
-  background: rgba(28, 30, 58, 1);
+  flex-direction: column; /* stack image above text */
+  align-items: center; /* center contents */
+  align-self: center;
+  background: transparent;
 }
 
 .chat.user {
   align-self: flex-end;
-  background: rgba(58, 28, 30, 1);
+  background: rgba(28, 30, 58, 0.9);
 }
 
 .chatImg {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.5rem;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 6.5rem;
   object-fit: cover;
-  margin-right: 1rem;
   flex-shrink: 0;
 }
 
+/* 1. First bot message stays centered & stacked */
+.chats .chat.bot:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  max-width: 70%;
+  background-color: transparent;
+}
+.chats .chat.bot:first-child .chatImg {
+  margin: 0 0 1rem;
+}
+.chats .chat.bot:first-child .txt {
+  text-align: center;
+  flex: none;
+}
+.chats .chat.bot:first-child .chatImg {
+  width: 8rem;
+  height: 8rem;
+}
+/* 2. All subsequent bot messages behave like user chats */
+.chats .chat.bot:not(:first-child) {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-self: flex-start;
+  max-width: 60%;
+}
+.chats .chat.bot:not(:first-child) .chatImg {
+  margin: 0 2.5rem 0 0;
+}
+.chats .chat.bot:not(:first-child) .txt {
+  text-align: left;
+  flex: 1;
+}
+.chats .chat.user .chatImg {
+  /* match the bot spacing, or tweak to taste */
+  margin: 0 2.5rem 0 0;
+}
+.message-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* horizontally center child elements */
+  text-align: center;
+}
+.bot-heading {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem; /* space between heading & body */
+  color: var(--accent2); /* or whatever your theme uses */
+}
 .txt {
   line-height: 1.5;
-  flex: 1;
 }
 
 .chatFooter {
@@ -270,8 +341,8 @@ body {
   width: 100%;
   max-width: 600px;
   background: rgba(28, 30, 58, 1);
-  border-radius: 0.5rem;
-  padding: 0.5rem;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
 }
 
 .inp > input {
@@ -281,7 +352,7 @@ body {
   padding: 1rem;
   padding-right: 0.5rem;
   color: white;
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   min-width: 0;
 }
 
@@ -291,10 +362,40 @@ body {
   cursor: pointer;
   flex-shrink: 0;
 }
+/* 1) Make your bot bubbles use a mono font and hide overflow */
+.bubble.bot {
+  font-family: "Courier New", Courier, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block; /* shrink‐to‐fit the changing width */
+  vertical-align: bottom; /* keeps it aligned with other bubbles/buttons */
+}
+
+/* 2) Add a blinking caret with CSS keyframes */
+.bubble.bot.caret::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin-left: 2px;
+  background-color: currentColor;
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+/* 3) Define the blinking animation */
+@keyframes blink-caret {
+  from,
+  to {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
 
 .send img {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.8rem;
+  height: 1.8rem;
 }
 
 .main > p {
