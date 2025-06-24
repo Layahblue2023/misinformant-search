@@ -1,4 +1,6 @@
-/* Reset + Base */
+/******************************************************************************/
+/* ******************************* Base *******************************/
+/******************************************************************************/
 * {
   margin: 0;
   padding: 0;
@@ -14,6 +16,7 @@ body {
   color: white;
   font-family: "Poppins", "sans-serif";
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 /* App Container: a flex row */
@@ -21,8 +24,17 @@ body {
   display: flex;
   min-height: 100vh;
 }
-
-/* --------------------------- Hamburger Button --------------------------- */
+:root {
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --query-bg: rgba(255, 255, 255, 0.05);
+  --query-hover: rgba(255, 255, 255, 0.1);
+  --transition: 0.3s ease;
+}
+/******************************************************************************/
+/* ******************************* Hamburger Menu *******************************/
+/******************************************************************************/
 .hamburger {
   position: fixed;
   top: 1rem;
@@ -45,7 +57,6 @@ body {
   }
 }
 
-/* --------------------------- Overlay (mobile) --------------------------- */
 .overlay {
   position: fixed;
   top: 0;
@@ -56,52 +67,36 @@ body {
   z-index: 1000;
 }
 
-/* --------------------------- Sidebar (always) --------------------------- */
-.sideBar {
+/******************************************************************************/
+/* ******************************* Sidebar Nav *******************************/
+/******************************************************************************/
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 300px;
+  background: #0d1d33;
+  color: var(--sidebar-text);
+  border-right: 1px solid #646464;
   display: flex;
   flex-direction: column;
-  height: 100vh; /* fill full viewport height */
-  width: 300px; /* fixed desktop width */
-  background: #0d1d33;
-  border-right: 1px solid #646464;
-  transition: transform 0.3s ease;
-  z-index: 1500;
-  flex-shrink: 0;
-}
-
-/* When “closed” is applied, slide the sidebar off-screen */
-.sideBar.closed {
   transform: translateX(-100%);
+  transition: transform var(--transition);
+  z-index: 1000;
 }
-
-/* When “open” is applied (mobile), slide it into view */
-.sideBar.open {
+.sidebar--open {
   transform: translateX(0);
 }
 
-/* --------------------------- Mobile Overrides (≤ 800px) --------------------------- */
-@media (max-width: 800px) {
-  .sideBar {
-    width: 260px;
-    height: 100%;
-  }
-}
-
-/* --------------------------- Sidebar Contents --------------------------- */
-.logo {
-  margin-right: 0.5rem;
-}
-
-.upperSide {
+.sidebar__content {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  padding: 2.5rem;
-  border-bottom: 2px solid rgb(100, 100, 100);
-  min-height: 0;
+  overflow: hidden;
 }
 
-.upperSideTop {
+.sidebar__header {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -109,55 +104,111 @@ body {
   margin: 1rem 0;
   padding: 0 2.5rem;
 }
+.sidebar__logo {
+  margin-right: 0.5rem;
+}
+.sidebar__new-chat {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
 
-.upperSideBottom {
-  flex: 1 1 auto;
+.sidebar__queries {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 1rem;
+}
+.sidebar__query {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--query-bg);
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+
+  overflow: hidden;
+}
+.sidebar__query:hover {
+  background: var(--query-hover);
+}
+.sidebar__query-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-width: 0;
+  font-size: 1.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.sidebar__query-content span {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+.sidebar__query-date {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 1.5rem;
+}
+
+.sidebar__footer {
+  padding: 1rem;
+  border-top: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  align-items: stretch;
-  overflow-y: auto;
-  padding: 0 0.5rem;
-  min-height: 0;
+  gap: 0.5rem;
 }
-
-/* Custom scrollbar styling */
-.upperSideBottom::-webkit-scrollbar {
-  width: 8px;
-}
-.upperSideBottom::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+.sidebar__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
   border-radius: 4px;
 }
-.upperSideBottom::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 4px;
-}
-.upperSideBottom::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.8);
-}
-.upperSideBottom {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.6) rgba(255, 255, 255, 0.1);
+.sidebar__nav-item:hover {
+  background: var(--query-bg);
 }
 
-.lowerSide {
-  flex: 0 0 auto;
-  padding: 2rem;
-  border-top: 2px solid rgb(100, 100, 100);
+@media (max-width: 768px) {
+  .sidebar {
+    width: 240px;
+  }
 }
-
-.addBtn {
-  height: 2rem;
-  padding-right: 1rem;
+@media (min-width: 801px) {
+  .App {
+    padding-left: 300px; /* sidebar width */
+  }
 }
+@media (max-width: 800px) {
+  .App {
+    padding-left: 0;
+  }
+}
+/******************************************************************************/
+/* ******************************* Buttons *******************************/
+/******************************************************************************/
 
 .midBtn {
   background: #5a4bff;
   border: none;
   color: white;
-  padding: 1.5rem;
-  font-size: 1.5rem;
+  padding: 0.8rem;
+  font-size: 2.5rem;
   width: 100%;
   max-width: 35rem;
   display: flex;
@@ -165,9 +216,39 @@ body {
   justify-content: center;
   margin: 0 auto 2rem auto;
   border-radius: 0.5rem;
+  gap: 1.5rem;
+}
+.midBtn img {
+  display: block;
+  width: 3rem;
+  height: 3rem;
 }
 
-/* ——— updated query styling ——— */
+/******************************************************************************/
+/* ******************************* Profile Avatar *******************************/
+/******************************************************************************/
+.profile-avatar-button {
+  position: fixed;
+  top: 1.5rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2001; /* above sidebar & overlay */
+}
+
+.profile-avatar {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+/******************************************************************************/
+/* ******************************* Search History *******************************/
+/******************************************************************************/
 .query {
   display: flex;
   align-items: center;
@@ -186,8 +267,6 @@ body {
 .query:hover {
   background: rgba(255, 255, 255, 0.1);
 }
-
-/* group icon + text */
 .queryContent {
   display: flex;
   align-items: center;
@@ -200,7 +279,6 @@ body {
   flex-shrink: 0;
 }
 
-/* date stamp */
 .queryDate {
   font-size: 1.2rem;
   color: rgba(200, 200, 200, 0.8);
@@ -208,8 +286,7 @@ body {
   flex-shrink: 0;
   margin-left: 1.5rem;
 }
-
-/* Old listItems/nav styles unchanged */
+/*Home-Saved-Upgrade Buttons*/
 .listItems {
   margin: 0.7rem 0;
   display: flex;
@@ -218,19 +295,25 @@ body {
 }
 .listitemImg {
   margin-right: 1rem;
-  height: 1.5rem;
+  height: 1.8rem;
   object-fit: cover;
 }
 
-/* --------------------------- Main Chat Area --------------------------- */
+/******************************************************************************/
+/* ******************************* Main Chat *******************************/
+/******************************************************************************/
 .main {
   display: flex;
   flex-direction: column;
-  flex: 1 1 0; /* grow to fill leftover space, shrink as needed */
+  flex: 1 0-1 0;
   min-height: 100vh;
   padding: 5rem 2rem;
+  max-width: 980px;
+  scroll-behavior: smooth;
+
   max-width: 920px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .chats {
@@ -243,18 +326,18 @@ body {
 .chat {
   display: flex;
   align-items: flex-start;
-  margin: 1rem 0;
+  margin: 1rem 0rem;
   padding: 1.5rem 2rem;
   font-size: 1.5rem;
   max-width: 100%;
   word-break: break-word;
   background: rgba(28, 30, 58, 1);
-  border-radius: 3.5rem;
+  border-radius: 2.5rem;
 }
 
 .chat.bot {
-  flex-direction: column; /* stack image above text */
-  align-items: center; /* center contents */
+  flex-direction: column;
+  align-items: center;
   align-self: center;
   background: transparent;
 }
@@ -262,6 +345,7 @@ body {
 .chat.user {
   align-self: flex-end;
   background: rgba(28, 30, 58, 0.9);
+  align-items: end;
 }
 
 .chatImg {
@@ -272,7 +356,7 @@ body {
   flex-shrink: 0;
 }
 
-/* 1. First bot message stays centered & stacked */
+/* Welcome Message*/
 .chats .chat.bot:first-child {
   display: flex;
   flex-direction: column;
@@ -285,14 +369,16 @@ body {
   margin: 0 0 1rem;
 }
 .chats .chat.bot:first-child .txt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  flex: none;
 }
 .chats .chat.bot:first-child .chatImg {
   width: 8rem;
   height: 8rem;
 }
-/* 2. All subsequent bot messages behave like user chats */
+/* All subsequent bot messages */
 .chats .chat.bot:not(:first-child) {
   display: flex;
   flex-direction: row;
@@ -307,26 +393,28 @@ body {
   text-align: left;
   flex: 1;
 }
+/* All user messages */
+.chats .chat.user {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-self: flex-end;
+  max-width: 60%;
+}
+.chats .chat.user.txt {
+  text-align: left;
+  flex: 1;
+}
 .chats .chat.user .chatImg {
-  /* match the bot spacing, or tweak to taste */
   margin: 0 2.5rem 0 0;
 }
-.message-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* horizontally center child elements */
-  text-align: center;
-}
-.bot-heading {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 0 0 0.25rem; /* space between heading & body */
-  color: var(--accent2); /* or whatever your theme uses */
-}
+
 .txt {
   line-height: 1.5;
 }
-
+/******************************************************************************/
+/* ***************************** User Input/Search ***************************/
+/******************************************************************************/
 .chatFooter {
   margin-top: auto;
   width: 100%;
@@ -362,36 +450,6 @@ body {
   cursor: pointer;
   flex-shrink: 0;
 }
-/* 1) Make your bot bubbles use a mono font and hide overflow */
-.bubble.bot {
-  font-family: "Courier New", Courier, monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  display: inline-block; /* shrink‐to‐fit the changing width */
-  vertical-align: bottom; /* keeps it aligned with other bubbles/buttons */
-}
-
-/* 2) Add a blinking caret with CSS keyframes */
-.bubble.bot.caret::after {
-  content: "";
-  display: inline-block;
-  width: 1px;
-  height: 1em;
-  margin-left: 2px;
-  background-color: currentColor;
-  animation: blink-caret 0.75s step-end infinite;
-}
-
-/* 3) Define the blinking animation */
-@keyframes blink-caret {
-  from,
-  to {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-}
 
 .send img {
   width: 1.8rem;
@@ -403,7 +461,9 @@ body {
   margin-top: 2rem;
   font-size: 1.2rem;
 }
-
+/******************************************************************************/
+/* ***************************** Responsive ***************************/
+/******************************************************************************/
 @media (max-width: 800px) {
   .chat {
     padding: 1rem;

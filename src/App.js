@@ -1,6 +1,8 @@
 // src/App.js
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import "./App.css";
+
 import misinformantLogo from "./assets/Misinformant.svg";
 import addBtn from "./assets/add-30.png";
 import msgIcon from "./assets/message.svg";
@@ -10,9 +12,110 @@ import rocket from "./assets/rocket.svg";
 import sendBtn from "./assets/send.svg";
 import userIcon from "./assets/user-icon.png";
 import shield from "./assets/logoShield.png";
-import { getClaims } from "./services/claimServices";
 
-function App() {
+import { getClaims } from "./services/claimServices";
+import Profile from "./profile";
+
+// ——— Sidebar component —————————————————————————————————————————
+function Sidebar({ isOpen, claims, onNewChat, onQueryClick, onNavClick }) {
+  const navigate = useNavigate();
+
+  const defaultQueries = [
+    {
+      id: 1,
+      title: "Does bleach kill COVID-19?",
+      date: "2025-06-12T10:00:00Z",
+    },
+    { id: 2, title: "Who owns Greenland?", date: "2025-05-26T14:30:00Z" },
+  ];
+  const items = claims.length ? claims : defaultQueries;
+
+  const handleNav = (path) => {
+    navigate(path);
+    onNavClick();
+  };
+
+  return (
+    <aside
+      id="sidebar"
+      className={`sidebar ${isOpen ? "sidebar--open" : ""}`}
+      role="complementary"
+    >
+      <div className="sidebar__content">
+        <header className="sidebar__header">
+          <img
+            src={misinformantLogo}
+            alt="MisInformant logo"
+            className="sidebar__logo"
+          />
+          <button
+            type="button"
+            className="midBtn"
+            onClick={onNewChat}
+            aria-label="Start a new chat"
+          >
+            <img src={msgIcon} alt="" />
+            <span>New chat</span>
+          </button>
+        </header>
+
+        <nav className="sidebar__queries" aria-label="Previous queries">
+          {items.map((c) => (
+            <button
+              key={c.id}
+              className="sidebar__query"
+              onClick={() => onQueryClick(c.title)}
+            >
+              <div className="sidebar__query-content">
+                <span>{c.title}</span>
+              </div>
+              <time className="sidebar__query-date" dateTime={c.date}>
+                {new Date(c.date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </time>
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <footer className="sidebar__footer">
+        <button
+          type="button"
+          className="sidebar__nav-item"
+          onClick={() => handleNav("/")}
+        >
+          <img src={home} alt="" />
+          <span>Home</span>
+        </button>
+        <button
+          type="button"
+          className="sidebar__nav-item"
+          onClick={() => handleNav("/saved")}
+        >
+          <img src={saved} alt="" />
+          <span>Saved</span>
+        </button>
+        <button
+          type="button"
+          className="sidebar__nav-item"
+          onClick={() => handleNav("/upgrade")}
+        >
+          <img src={rocket} alt="" />
+          <span>Upgrade to Pro</span>
+        </button>
+        {/* Profile removed here; avatar now top-right */}
+      </footer>
+    </aside>
+  );
+}
+
+// ——— Main chat + floating avatar ——————————————————————————————————
+function AppContent() {
+  const navigate = useNavigate();
+
   // Initial bot message
   const initialBot = {
     id: Date.now(),
@@ -25,17 +128,15 @@ function App() {
   const [queryText, setQueryText] = useState("");
   const [claims, setClaims] = useState([]);
   const [chatHistory, setChatHistory] = useState([initialBot]);
-
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 800);
 
+  // Fetch initial claims
   useEffect(() => {
-    getClaims().then((data) => {
-      // note: our mock returns ids, text, createdAt
-      setClaims(data);
-    });
+    getClaims().then((data) => setClaims(data));
   }, []);
-  // Resize logic
+
+  // Handle resize
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
@@ -46,13 +147,13 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Prevent scroll when mobile menu open
+  // Prevent body scroll when mobile sidebar open
   useEffect(() => {
     document.body.style.overflow =
       isSidebarOpen && windowWidth <= 800 ? "hidden" : "auto";
   }, [isSidebarOpen, windowWidth]);
 
-  // Close on Escape (mobile)
+  // Close on Escape
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape" && isSidebarOpen && windowWidth <= 800) {
@@ -63,22 +164,17 @@ function App() {
     return () => document.removeEventListener("keydown", onKey);
   }, [isSidebarOpen, windowWidth]);
 
-  // New Chat
+  // Handlers
   const handleNewChat = () => {
     setChatHistory([initialBot]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // Send Message + add claim
   const handleSend = () => {
     if (!queryText.trim()) return;
     const now = new Date().toISOString();
-    const userMsg = {
-      id: Date.now(),
-      speaker: "user",
-      text: queryText,
-    };
+    const userMsg = { id: Date.now(), speaker: "user", text: queryText };
     const botMsg = {
       id: Date.now() + 1,
       speaker: "bot",
@@ -89,7 +185,6 @@ function App() {
     setQueryText("");
   };
 
-  // Predefined Query Click + add claim
   const handleQueryClick = (title) => {
     const now = new Date().toISOString();
     const userMsg = { id: Date.now(), speaker: "user", text: title };
@@ -99,19 +194,26 @@ function App() {
       text: "Got it—your claim is queued! One moment while we process it…",
     };
     setChatHistory([initialBot, userMsg, botMsg]);
-
+    setClaims((p) => [...p, { id: userMsg.id, title, date: now }]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // Bottom nav
   const handleGenericSidebarClick = () => {
     if (windowWidth <= 800) setIsSidebarOpen(false);
-    // navigate…
   };
 
   return (
     <div className="App">
+      {/* floating profile avatar */}
+      <button
+        className="profile-avatar-button"
+        onClick={() => navigate("/profile")}
+        aria-label="Your profile"
+      >
+        <img src={userIcon} alt="Profile" className="profile-avatar" />
+      </button>
+
       {/* Hamburger */}
       {windowWidth <= 800 && (
         <button
@@ -124,8 +226,6 @@ function App() {
           ☰
         </button>
       )}
-
-      {/* Overlay */}
       {windowWidth <= 800 && isSidebarOpen && (
         <div
           className="overlay"
@@ -135,67 +235,13 @@ function App() {
       )}
 
       {/* Sidebar */}
-      <div
-        id="sidebar"
-        className={`sideBar ${isSidebarOpen ? "open" : "closed"}`}
-      >
-        <div className="upperSide">
-          <div className="upperSideTop">
-            <img src={misinformantLogo} alt="Logo" className="logo" />
-            <button type="button" className="midBtn" onClick={handleNewChat}>
-              <img src={addBtn} alt="" className="addBtn" />
-            </button>
-          </div>
-
-          <div className="upperSideBottom">
-            {(claims.length === 0
-              ? [
-                  {
-                    id: 1,
-                    title: "Does bleach kill COVID-19?",
-                    date: "2025-06-12T10:00:00Z",
-                  },
-                  {
-                    id: 2,
-                    title: "Who owns Greenland?",
-                    date: "2025-05-26T14:30:00Z",
-                  },
-                ]
-              : claims
-            ).map((c) => (
-              <button
-                key={c.id}
-                className="query"
-                onClick={() => handleQueryClick(c.title)}
-              >
-                <div className="queryContent">
-                  <img src={msgIcon} alt="" />
-                  <span>{c.title}</span>
-                </div>
-                <span className="queryDate">
-                  {new Date(c.date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="lowerSide">
-          <div className="listItems" onClick={handleGenericSidebarClick}>
-            <img src={home} alt="" className="listitemImg" /> Home
-          </div>
-          <div className="listItems" onClick={handleGenericSidebarClick}>
-            <img src={saved} alt="" className="listitemImg" /> Saved
-          </div>
-          <div className="listItems" onClick={handleGenericSidebarClick}>
-            <img src={rocket} alt="" className="listitemImg" /> Upgrade to pro
-          </div>
-        </div>
-      </div>
+      <Sidebar
+        isOpen={isSidebarOpen}
+        claims={claims}
+        onNewChat={handleNewChat}
+        onQueryClick={handleQueryClick}
+        onNavClick={handleGenericSidebarClick}
+      />
 
       {/* Main chat */}
       <div className="main">
@@ -209,7 +255,7 @@ function App() {
               />
               <div className="message-content">
                 {msg.speaker === "bot" && msg.title && (
-                  <h3 className="bot-heading">{msg.title}</h3>
+                  <h3 className="txt">{msg.title}</h3>
                 )}
                 <p className="txt">{msg.text}</p>
               </div>
@@ -237,4 +283,14 @@ function App() {
   );
 }
 
-export default App;
+// ——— App root with routing ——————————————————————————————————————
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AppContent />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
