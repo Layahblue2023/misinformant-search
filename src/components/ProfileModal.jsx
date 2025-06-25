@@ -14,16 +14,19 @@ export default function ProfileModal({ onClose }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div
         className="modal-content"
-        onClick={
-          (e) => e.stopPropagation() /* keep clicks inside from closing */
-        }
+        style={{
+          maxWidth: "600px",
+          width: "95%",
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
         <button className="modal-close" onClick={onClose} aria-label="Close">
           ×
         </button>
         <div
           style={{
-            maxWidth: 600,
+            maxWidth: 800,
+            width: "100%",
             margin: "2rem auto",
             padding: 24,
             border: "1px solid #eee",
