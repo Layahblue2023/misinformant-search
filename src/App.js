@@ -1,6 +1,5 @@
-// src/App.js
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 
 import misinformantLogo from "./assets/Misinformant.svg";
@@ -14,114 +13,17 @@ import userIcon from "./assets/user-icon.png";
 import shield from "./assets/logoShield.png";
 
 import { getClaims } from "./services/claimServices";
-import Profile from "./profile";
-
-// ——— Sidebar component —————————————————————————————————————————
-function Sidebar({ isOpen, claims, onNewChat, onQueryClick, onNavClick }) {
-  const navigate = useNavigate();
-
-  const defaultQueries = [
-    {
-      id: 1,
-      title: "Does bleach kill COVID-19?",
-      date: "2025-06-12T10:00:00Z",
-    },
-    { id: 2, title: "Who owns Greenland?", date: "2025-05-26T14:30:00Z" },
-  ];
-  const items = claims.length ? claims : defaultQueries;
-
-  const handleNav = (path) => {
-    navigate(path);
-    onNavClick();
-  };
-
-  return (
-    <aside
-      id="sidebar"
-      className={`sidebar ${isOpen ? "sidebar--open" : ""}`}
-      role="complementary"
-    >
-      <div className="sidebar__content">
-        <header className="sidebar__header">
-          <img
-            src={misinformantLogo}
-            alt="MisInformant logo"
-            className="sidebar__logo"
-          />
-          <button
-            type="button"
-            className="midBtn"
-            onClick={onNewChat}
-            aria-label="Start a new chat"
-          >
-            <img src={msgIcon} alt="" />
-            <span>New chat</span>
-          </button>
-        </header>
-
-        <nav className="sidebar__queries" aria-label="Previous queries">
-          {items.map((c) => (
-            <button
-              key={c.id}
-              className="sidebar__query"
-              onClick={() => onQueryClick(c.title)}
-            >
-              <div className="sidebar__query-content">
-                <span>{c.title}</span>
-              </div>
-              <time className="sidebar__query-date" dateTime={c.date}>
-                {new Date(c.date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </time>
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      <footer className="sidebar__footer">
-        <button
-          type="button"
-          className="sidebar__nav-item"
-          onClick={() => handleNav("/")}
-        >
-          <img src={home} alt="" />
-          <span>Home</span>
-        </button>
-        <button
-          type="button"
-          className="sidebar__nav-item"
-          onClick={() => handleNav("/saved")}
-        >
-          <img src={saved} alt="" />
-          <span>Saved</span>
-        </button>
-        <button
-          type="button"
-          className="sidebar__nav-item"
-          onClick={() => handleNav("/upgrade")}
-        >
-          <img src={rocket} alt="" />
-          <span>Upgrade to Pro</span>
-        </button>
-        {/* Profile removed here; avatar now top-right */}
-      </footer>
-    </aside>
-  );
-}
+import Sidebar from "./components/Sidebar";
+import ProfileModal from "./components/ProfileModal";
 
 // ——— Main chat + floating avatar ——————————————————————————————————
 function AppContent() {
-  const navigate = useNavigate();
-
   // Initial bot message
   const initialBot = {
     id: Date.now(),
     speaker: "bot",
     title: "Welcome to MisInformant!",
-    text: " We’re on a mission to combat misinformation and illuminate the truth in a world of noise. Please upload your claim to get started.",
+    text: "We’re on a mission to combat misinformation and illuminate the truth in a world of noise. Please upload your claim to get started.",
   };
 
   // State
@@ -130,6 +32,7 @@ function AppContent() {
   const [chatHistory, setChatHistory] = useState([initialBot]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 800);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Fetch initial claims
   useEffect(() => {
@@ -156,13 +59,14 @@ function AppContent() {
   // Close on Escape
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape" && isSidebarOpen && windowWidth <= 800) {
-        setIsSidebarOpen(false);
+      if (e.key === "Escape") {
+        if (isSidebarOpen && windowWidth <= 800) setIsSidebarOpen(false);
+        if (showProfile) setShowProfile(false);
       }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [isSidebarOpen, windowWidth]);
+  }, [isSidebarOpen, showProfile, windowWidth]);
 
   // Handlers
   const handleNewChat = () => {
@@ -180,21 +84,26 @@ function AppContent() {
       speaker: "bot",
       text: "Got it—your claim is queued! One moment while we process it…",
     };
-    setChatHistory((p) => [...p, userMsg, botMsg]);
-    setClaims((p) => [...p, { id: userMsg.id, title: queryText, date: now }]);
+    setChatHistory((prev) => [...prev, userMsg, botMsg]);
+    setClaims((prev) => [
+      ...prev,
+      { id: userMsg.id, title: queryText, date: now },
+    ]);
     setQueryText("");
   };
 
-  const handleQueryClick = (title) => {
-    const now = new Date().toISOString();
-    const userMsg = { id: Date.now(), speaker: "user", text: title };
+  const handleQueryClick = (claim) => {
+    const userMsg = {
+      id: claim.id,
+      speaker: "user",
+      text: claim.title,
+    };
     const botMsg = {
-      id: Date.now() + 1,
+      id: claim.id + 1,
       speaker: "bot",
       text: "Got it—your claim is queued! One moment while we process it…",
     };
     setChatHistory([initialBot, userMsg, botMsg]);
-    setClaims((p) => [...p, { id: userMsg.id, title, date: now }]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
@@ -203,12 +112,15 @@ function AppContent() {
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
+  const openProfile = () => setShowProfile(true);
+  const closeProfile = () => setShowProfile(false);
+
   return (
     <div className="App">
       {/* floating profile avatar */}
       <button
         className="profile-avatar-button"
-        onClick={() => navigate("/profile")}
+        onClick={openProfile}
         aria-label="Your profile"
       >
         <img src={userIcon} alt="Profile" className="profile-avatar" />
@@ -239,8 +151,8 @@ function AppContent() {
         isOpen={isSidebarOpen}
         claims={claims}
         onNewChat={handleNewChat}
-        onQueryClick={handleQueryClick}
         onNavClick={handleGenericSidebarClick}
+        onQueryClick={handleQueryClick}
       />
 
       {/* Main chat */}
@@ -278,6 +190,8 @@ function AppContent() {
         </div>
 
         <p>MisInformant may produce incorrect information</p>
+
+        {showProfile && <ProfileModal onClose={closeProfile}></ProfileModal>}
       </div>
     </div>
   );
@@ -289,7 +203,6 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AppContent />} />
-        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
