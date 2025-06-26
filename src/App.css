@@ -12,7 +12,7 @@ html {
 }
 
 body {
-  background: rgb(3, 0, 31);
+  background: #0f2c3e;
   color: white;
   font-family: "Poppins", "sans-serif";
   overflow-x: hidden;
@@ -76,9 +76,9 @@ body {
   bottom: 0;
   left: 0;
   width: 300px;
-  background: #0d1d33;
+  background: #0b202d;
   color: var(--sidebar-text);
-  border-right: 1px solid #646464;
+  border-right: 1px solid #08121f;
   display: flex;
   flex-direction: column;
   transform: translateX(-100%);
@@ -125,9 +125,9 @@ body {
   justify-content: space-between;
   background: var(--query-bg);
   border: none;
-  border-radius: 4px;
+  border-radius: 1.2rem;
   padding: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   width: 100%;
   text-align: left;
   cursor: pointer;
@@ -142,7 +142,7 @@ body {
   align-items: center;
   gap: 1.5rem;
   min-width: 0;
-  font-size: 1.75rem;
+  font-size: 1.55rem;
   color: rgba(255, 255, 255, 0.6);
 }
 .sidebar__query-content span {
@@ -204,24 +204,24 @@ body {
 /******************************************************************************/
 
 .midBtn {
-  background: #5a4bff;
+  background: #153f59;
   border: none;
   color: white;
   padding: 0.8rem;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   width: 100%;
   max-width: 35rem;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 2rem auto;
-  border-radius: 0.5rem;
+  border-radius: 1.3rem;
   gap: 1.5rem;
 }
 .midBtn img {
   display: block;
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 /******************************************************************************/
@@ -373,6 +373,7 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  font-size: 2.5rem;
 }
 .chats .chat.bot:first-child .chatImg {
   width: 8rem;
@@ -404,6 +405,7 @@ body {
 .chats .chat.user.txt {
   text-align: left;
   flex: 1;
+  margin: 2.5rem 0;
 }
 .chats .chat.user .chatImg {
   margin: 0 2.5rem 0 0;
@@ -428,7 +430,7 @@ body {
   align-items: center;
   width: 100%;
   max-width: 600px;
-  background: rgba(28, 30, 58, 1);
+  background: #0b202d;
   border-radius: 1.5rem;
   padding: 1.5rem;
 }

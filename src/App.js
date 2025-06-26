@@ -23,7 +23,7 @@ function AppContent() {
     id: Date.now(),
     speaker: "bot",
     title: "Welcome to MisInformant!",
-    text: "We’re on a mission to combat misinformation and illuminate the truth in a world of noise. Please upload your claim to get started.",
+    text: "Want to know the truth?",
   };
 
   // State
@@ -160,15 +160,7 @@ function AppContent() {
         <div className="chats">
           {chatHistory.map((msg) => (
             <div key={msg.id} className={`chat ${msg.speaker}`}>
-              <img
-                className="chatImg"
-                src={msg.speaker === "bot" ? shield : userIcon}
-                alt={msg.speaker}
-              />
               <div className="message-content">
-                {msg.speaker === "bot" && msg.title && (
-                  <h3 className="txt">{msg.title}</h3>
-                )}
                 <p className="txt">{msg.text}</p>
               </div>
             </div>
