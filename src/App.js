@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-
+import axios from "axios";
 import misinformantLogo from "./assets/Misinformant.svg";
 import addBtn from "./assets/add-30.png";
 import msgIcon from "./assets/message.svg";
@@ -77,19 +77,44 @@ function AppContent() {
 
   const handleSend = () => {
     if (!queryText.trim()) return;
+
     const now = new Date().toISOString();
     const userMsg = { id: Date.now(), speaker: "user", text: queryText };
-    const botMsg = {
-      id: Date.now() + 1,
-      speaker: "bot",
-      text: "Got it—your claim is queued! One moment while we process it…",
-    };
-    setChatHistory((prev) => [...prev, userMsg, botMsg]);
-    setClaims((prev) => [
-      ...prev,
-      { id: userMsg.id, title: queryText, date: now },
-    ]);
-    setQueryText("");
+
+    // Show the user's text immediately
+    setChatHistory((prev) => [...prev, userMsg]);
+
+    axios
+      .post(
+        "http://127.0.0.1:5000/createClaim", // include the scheme!
+        { claim: queryText },
+        { timeout: 60_000 }
+      )
+      .then((res) => {
+        console.log(res);
+        // Whatever the API returns — adjust the path to suit your payload
+        const botMsg = {
+          id: Date.now() + 1,
+          speaker: "bot",
+          text: res.data.response, // e.g. { "message": "Claim queued!" }
+        };
+
+        setChatHistory((prev) => [...prev, botMsg]);
+        setClaims((prev) => [
+          ...prev,
+          { id: userMsg.id, title: queryText, date: now },
+        ]);
+      })
+      .catch((err) => {
+        console.error(err);
+        const botMsg = {
+          id: Date.now() + 1,
+          speaker: "bot",
+          text: "⚠️ Sorry, something went wrong.",
+        };
+        setChatHistory((prev) => [...prev, botMsg]);
+      })
+      .finally(() => setQueryText(""));
   };
 
   const handleQueryClick = (claim) => {
