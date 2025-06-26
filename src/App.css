@@ -308,9 +308,7 @@ body {
   flex: 1 0-1 0;
   min-height: 100vh;
   padding: 5rem 2rem;
-  max-width: 980px;
   scroll-behavior: smooth;
-
   max-width: 920px;
   margin: 0 auto;
   width: 100%;
@@ -385,15 +383,23 @@ body {
   flex-direction: row;
   align-items: flex-start;
   align-self: flex-start;
-  max-width: 60%;
+  max-width: 80%;
 }
 .chats .chat.bot:not(:first-child) .chatImg {
   margin: 0 2.5rem 0 0;
 }
 .chats .chat.bot:not(:first-child) .txt {
   text-align: left;
-  flex: 1;
+  flex: 1 1 auto;
+  background: #0b202d;
+  padding: 1rem;
+  line-height: 1.8;
+  font-size: 1.5rem;
+  overflow-wrap: break-word;
+  border-radius: 8px;
+  margin: 0.25rem 0;
 }
+
 /* All user messages */
 .chats .chat.user {
   display: flex;
@@ -405,7 +411,7 @@ body {
 .chats .chat.user.txt {
   text-align: left;
   flex: 1;
-  margin: 2.5rem 0;
+  margin: 2.5rem 1rem;
 }
 .chats .chat.user .chatImg {
   margin: 0 2.5rem 0 0;

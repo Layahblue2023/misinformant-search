@@ -54,6 +54,7 @@ export default function ProfileModal({ onClose }) {
     fontSize: "1.5rem",
     cursor: "pointer",
     lineHeight: 1,
+    color: "#fff",
   };
 
   const bodyStyle = {
@@ -149,7 +150,6 @@ export default function ProfileModal({ onClose }) {
         <div style={bodyStyle}>
           <div style={avatarContainerStyle}>
             <img src={userIcon} alt="User Avatar" style={avatarStyle} />
-            <button style={editBtnStyle}>Edit</button>
           </div>
           <form style={formStyle} onSubmit={(e) => e.preventDefault()}>
             <div style={fieldStyle}>
