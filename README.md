@@ -4,8 +4,8 @@ Welcome to the **Misinformant Website Version**, a responsive web application de
 
 ## 🚀 Getting Started
 
- Start the development server: npm start
- Your app will be running at:  
+Start the development server: npm start
+Your app will be running at:  
 [http://localhost:3000](http://localhost:3000)
 
 ### 📦 Prerequisites
@@ -22,6 +22,6 @@ Make sure you have the following installed:
 ├── src/
 │ ├── App.js # Main React component
 │ └── App.css # Styles for the app
+└── Components/
 ├── package.json
 └── README.md
-

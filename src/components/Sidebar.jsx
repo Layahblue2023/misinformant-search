@@ -1,4 +1,3 @@
-// src/components/Sidebar.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -17,20 +16,8 @@ export default function Sidebar({
 }) {
   const navigate = useNavigate();
 
-  const defaultQueries = [
-    {
-      id: 1,
-      title: "Does bleach kill COVID-19?",
-      date: "2025-06-12T10:00:00Z",
-    },
-    { id: 2, title: "Who owns Greenland?", date: "2025-05-26T14:30:00Z" },
-  ];
-
-  // choose either fetched claims or defaults
-  const items = claims.length ? claims : defaultQueries;
-
-  // sort descending by date (newest first)
-  const sortedItems = [...items].sort(
+  // sort claims by date (newest first)
+  const sortedClaims = [...claims].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
@@ -64,24 +51,28 @@ export default function Sidebar({
         </header>
 
         <nav className="sidebar__queries" aria-label="Previous queries">
-          {sortedItems.map((c) => (
-            <button
-              key={c.id}
-              className="sidebar__query"
-              onClick={() => onQueryClick(c)}
-            >
-              <div className="sidebar__query-content">
-                <span>{c.title}</span>
-              </div>
-              <time className="sidebar__query-date" dateTime={c.date}>
-                {new Date(c.date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </time>
-            </button>
-          ))}
+          {sortedClaims.length > 0 ? (
+            sortedClaims.map((c) => (
+              <button
+                key={c.id}
+                className="sidebar__query"
+                onClick={() => onQueryClick(c)}
+              >
+                <div className="sidebar__query-content">
+                  <span>{c.title}</span>
+                </div>
+                <time className="sidebar__query-date" dateTime={c.date}>
+                  {new Date(c.date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </time>
+              </button>
+            ))
+          ) : (
+            <p className="sidebar__empty">No previous queries</p>
+          )}
         </nav>
       </div>
 
