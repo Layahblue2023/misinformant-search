@@ -1,62 +1,60 @@
+// src/App.js
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./App.css";
 import axios from "axios";
-import misinformantLogo from "./assets/Misinformant.svg";
-import addBtn from "./assets/add-30.png";
-import msgIcon from "./assets/message.svg";
-import home from "./assets/home.svg";
-import saved from "./assets/bookmark.svg";
-import rocket from "./assets/rocket.svg";
-import sendBtn from "./assets/send.svg";
-import userIcon from "./assets/user-icon.png";
-import shield from "./assets/logoShield.png";
 
+import "./App.css";
 import { getClaims } from "./services/claimServices";
+
 import Sidebar from "./components/Sidebar";
+import History from "./components/chat/History";
+import Input from "./components/chat/Input";
 import ProfileModal from "./components/ProfileModal";
 
-// ——— Main chat + floating avatar ——————————————————————————————————
+import userIcon from "./assets/user-icon.png";
+
 function AppContent() {
-  // Initial bot message
+  // Initial bot message, now using markdown
   const initialBot = {
     id: Date.now(),
     speaker: "bot",
-    title: "Welcome to MisInformant!",
-    text: "Want to know the truth?",
+    markdown: `
+## Welcome to MisInformant!
+
+*Want to know the truth?*`,
   };
 
   // State
-  const [queryText, setQueryText] = useState("");
   const [claims, setClaims] = useState([]);
   const [chatHistory, setChatHistory] = useState([initialBot]);
+  const [queryText, setQueryText] = useState("");
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 800);
   const [showProfile, setShowProfile] = useState(false);
 
-  // Fetch initial claims
+  // Load mockClaims (with markdown) from claimServices
   useEffect(() => {
     getClaims().then((data) => setClaims(data));
   }, []);
 
-  // Handle resize
+  // Handle window resize → auto‐open/close sidebar
   useEffect(() => {
-    const handleResize = () => {
+    const onResize = () => {
       const w = window.innerWidth;
       setWindowWidth(w);
       setIsSidebarOpen(w > 800);
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Prevent body scroll when mobile sidebar open
+  // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     document.body.style.overflow =
       isSidebarOpen && windowWidth <= 800 ? "hidden" : "auto";
   }, [isSidebarOpen, windowWidth]);
 
-  // Close on Escape
+  // Close sidebar or modal on Escape
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
@@ -64,59 +62,48 @@ function AppContent() {
         if (showProfile) setShowProfile(false);
       }
     };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [isSidebarOpen, showProfile, windowWidth]);
 
-  // Handlers
+  // Start a new chat (reset to initial message)
   const handleNewChat = () => {
     setChatHistory([initialBot]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
+  // Send a user message and (optionally) call API
   const handleSend = () => {
     if (!queryText.trim()) return;
 
-    const now = new Date().toISOString();
-    const userMsg = { id: Date.now(), speaker: "user", text: queryText };
-
-    // Show the user's text immediately
+    const userMsg = {
+      id: Date.now(),
+      speaker: "user",
+      text: queryText,
+    };
     setChatHistory((prev) => [...prev, userMsg]);
 
-    axios
-      .post(
-        "http://127.0.0.1:5000/createClaim", // include the scheme!
-        { claim: queryText },
-        { timeout: 60_000 }
-      )
-      .then((res) => {
-        console.log(res);
-        // Whatever the API returns — adjust the path to suit your payload
-        const botMsg = {
-          id: Date.now() + 1,
-          speaker: "bot",
-          text: res.data.response, // e.g. { "message": "Claim queued!" }
-        };
+    // Example stubbed response — replace with axios.post when ready
+    const fakeBotReply = {
+      id: Date.now() + 1,
+      speaker: "bot",
+      markdown: `
+### Echo
 
-        setChatHistory((prev) => [...prev, botMsg]);
-        setClaims((prev) => [
-          ...prev,
-          { id: userMsg.id, title: queryText, date: now },
-        ]);
-      })
-      .catch((err) => {
-        console.error(err);
-        const botMsg = {
-          id: Date.now() + 1,
-          speaker: "bot",
-          text: "⚠️ Sorry, something went wrong.",
-        };
-        setChatHistory((prev) => [...prev, botMsg]);
-      })
-      .finally(() => setQueryText(""));
+You said: "${queryText}"
+
+- This is a mock reply.
+- Replace with \`res.data.markdown\` from your API.
+`,
+    };
+    setTimeout(() => {
+      setChatHistory((prev) => [...prev, fakeBotReply]);
+      setQueryText("");
+    }, 500);
   };
 
+  // User clicks a past claim in the sidebar
   const handleQueryClick = (claim) => {
     const userMsg = {
       id: claim.id,
@@ -126,49 +113,47 @@ function AppContent() {
     const botMsg = {
       id: claim.id + 1,
       speaker: "bot",
-      text: "Got it—your claim is queued! One moment while we process it…",
+      markdown: claim.markdown, // use markdown from mockClaims
     };
     setChatHistory([initialBot, userMsg, botMsg]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  const handleGenericSidebarClick = () => {
+  // Close sidebar on mobile after nav
+  const closeSidebarOnMobile = () => {
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  const openProfile = () => setShowProfile(true);
-  const closeProfile = () => setShowProfile(false);
-
   return (
     <div className="App">
-      {/* floating profile avatar */}
+      {/* Profile Avatar */}
       <button
         className="profile-avatar-button"
-        onClick={openProfile}
+        onClick={() => setShowProfile(true)}
         aria-label="Your profile"
       >
         <img src={userIcon} alt="Profile" className="profile-avatar" />
       </button>
 
-      {/* Hamburger */}
+      {/* Hamburger & Overlay for mobile */}
       {windowWidth <= 800 && (
-        <button
-          className="hamburger"
-          aria-label="Toggle menu"
-          aria-expanded={isSidebarOpen}
-          aria-controls="sidebar"
-          onClick={() => setIsSidebarOpen((o) => !o)}
-        >
-          ☰
-        </button>
-      )}
-      {windowWidth <= 800 && isSidebarOpen && (
-        <div
-          className="overlay"
-          onClick={() => setIsSidebarOpen(false)}
-          aria-hidden="true"
-        />
+        <>
+          <button
+            className="hamburger"
+            onClick={() => setIsSidebarOpen((o) => !o)}
+            aria-label="Toggle sidebar"
+          >
+            ☰
+          </button>
+          {isSidebarOpen && (
+            <div
+              className="overlay"
+              onClick={() => setIsSidebarOpen(false)}
+              aria-hidden="true"
+            />
+          )}
+        </>
       )}
 
       {/* Sidebar */}
@@ -176,45 +161,27 @@ function AppContent() {
         isOpen={isSidebarOpen}
         claims={claims}
         onNewChat={handleNewChat}
-        onNavClick={handleGenericSidebarClick}
         onQueryClick={handleQueryClick}
+        onNavClick={closeSidebarOnMobile}
       />
 
-      {/* Main chat */}
-      <div className="main">
-        <div className="chats">
-          {chatHistory.map((msg) => (
-            <div key={msg.id} className={`chat ${msg.speaker}`}>
-              <div className="message-content">
-                <p className="txt">{msg.text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="chatFooter">
-          <div className="inp">
-            <input
-              type="text"
-              placeholder="Send Message"
-              value={queryText}
-              onChange={(e) => setQueryText(e.target.value)}
-            />
-            <button className="send" onClick={handleSend}>
-              <img src={sendBtn} alt="Send" />
-            </button>
-          </div>
-        </div>
-
-        <p>MisInformant may produce incorrect information</p>
-
-        {showProfile && <ProfileModal onClose={closeProfile}></ProfileModal>}
-      </div>
+      {/* Main Chat Area */}
+      <main className="main">
+        <History messages={chatHistory} />
+        <Input
+          value={queryText}
+          onChange={(e) => setQueryText(e.target.value)}
+          onSend={handleSend}
+        />
+        <p className="disclaimer">
+          MisInformant may produce incorrect information
+        </p>
+        {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+      </main>
     </div>
   );
 }
 
-// ——— App root with routing ——————————————————————————————————————
 export default function App() {
   return (
     <BrowserRouter>

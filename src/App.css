@@ -469,6 +469,91 @@ body {
   margin-top: 2rem;
   font-size: 1.2rem;
 }
+
+/* ----------------------------------------
+   Markdown BotMessage Styles
+   ---------------------------------------- */
+
+/* Verdict heading (## …) */
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  /* default color—override with modifier classes below */
+  color: #ffffff;
+}
+/* Modifier for false verdict */
+.verdict--false {
+  color: #ff4d4f; /* red */
+}
+.verdict--false::before {
+  content: "❌";
+}
+/* Modifier for true verdict */
+.verdict--true {
+  color: #28a745; /* green */
+}
+.verdict--true::before {
+  content: "✔️";
+}
+/* Modifier for warning/misleading */
+.verdict--warning {
+  color: #faad14; /* amber */
+}
+.verdict--warning::before {
+  content: "⚠️";
+}
+
+/* Sub-headings (### …) */
+.subheading {
+  margin: 1.5rem 0 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.25rem;
+}
+
+/* Unordered lists under “Why…” */
+.reasons {
+  list-style-type: disc;
+  margin: 0.5rem 0 1rem 1.5rem;
+  padding: 0;
+}
+.reasons__item {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+/* Sources list */
+.sources {
+  list-style-type: none;
+  margin: 0.5rem 0 1rem 0;
+  padding: 0;
+}
+.sources li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+/* Link styling for sources (and any other markdown links) */
+.source-link {
+  color: #69c0ff;
+  text-decoration: underline;
+}
+.source-link:hover {
+  text-decoration: none;
+}
+
+/* Optional: adjust paragraph text inside markdown */
+.message-content p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  font-size: 1.5rem;
+}
+
 /******************************************************************************/
 /* ***************************** Profile Modal ***************************/
 /******************************************************************************/
