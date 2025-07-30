@@ -1,3 +1,5 @@
+// structure for how the bot's text bubble will look using markdown
+
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import shield from "../../assets/logoShield.png";

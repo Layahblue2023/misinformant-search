@@ -1,11 +1,10 @@
-// src/services/claimServices.js
+// Mock claims & bot responses for testing
 
 const mockClaims = [
   {
     id: 1,
     title: "Does bleach kill COVID-19?",
     date: "2025-06-23T10:00:00Z",
-    // <-- new field:
     markdown: `
 ## ❌ Verdict: False
 

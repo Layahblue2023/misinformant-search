@@ -1,3 +1,6 @@
+// shows the user's profile in a modal
+// allows user to view and edit their profile information
+
 import React from "react";
 import ReactDOM from "react-dom";
 import userIcon from "../assets/user-icon.png";

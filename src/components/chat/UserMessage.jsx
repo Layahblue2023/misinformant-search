@@ -1,3 +1,5 @@
+// structure for how the users text buble will look like
+
 import React from "react";
 
 export default function UserMessage({ text }) {

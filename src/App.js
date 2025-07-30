@@ -1,16 +1,13 @@
-// src/App.js
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
 import "./App.css";
 import { getClaims } from "./services/claimServices";
-
 import Sidebar from "./components/Sidebar";
 import History from "./components/chat/History";
 import Input from "./components/chat/Input";
 import ProfileModal from "./components/ProfileModal";
-
 import userIcon from "./assets/user-icon.png";
 
 function AppContent() {
@@ -24,7 +21,15 @@ function AppContent() {
 *Want to know the truth?*`,
   };
 
-  // State
+  // ========================
+  // **App State Management**
+  // 1. Stores the list of fetched mock claims from src/services/claimServices.js
+  // 2. Tracks the full conversation between the user and bot
+  // 3. Stores the current user input in the chat text field
+  // 4. Keeps track of the current window width
+  // 5. Controls whether the sidebar is visible
+  // 6. Controls whether the user profile modal is visible
+  // ========================
   const [claims, setClaims] = useState([]);
   const [chatHistory, setChatHistory] = useState([initialBot]);
   const [queryText, setQueryText] = useState("");
@@ -32,12 +37,14 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 800);
   const [showProfile, setShowProfile] = useState(false);
 
-  // Load mockClaims (with markdown) from claimServices
+  // ========================
+  // **useEffects**
+  // ========================
   useEffect(() => {
     getClaims().then((data) => setClaims(data));
   }, []);
 
-  // Handle window resize → auto‐open/close sidebar
+  // auto‐open/close sidebar
   useEffect(() => {
     const onResize = () => {
       const w = window.innerWidth;
@@ -48,13 +55,13 @@ function AppContent() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Prevent body scroll when mobile sidebar is open
+  // disable sidebar scroll on mobile
   useEffect(() => {
     document.body.style.overflow =
       isSidebarOpen && windowWidth <= 800 ? "hidden" : "auto";
   }, [isSidebarOpen, windowWidth]);
 
-  // Close sidebar or modal on Escape
+  // close sidebar or modal on Escape
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
@@ -66,44 +73,67 @@ function AppContent() {
     return () => window.removeEventListener("keydown", onKey);
   }, [isSidebarOpen, showProfile, windowWidth]);
 
-  // Start a new chat (reset to initial message)
+  // ========================
+  // **UI Handlers: user actions (clicking, typing, closing)**
+  // ========================
+
+  // Starts a new chat session.
   const handleNewChat = () => {
     setChatHistory([initialBot]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // Send a user message and (optionally) call API
+  // Sends user query to backend and displays bot response
   const handleSend = () => {
     if (!queryText.trim()) return;
 
+    const now = new Date().toISOString();
     const userMsg = {
       id: Date.now(),
       speaker: "user",
       text: queryText,
     };
+
+    // Add user's message to chat history immediately
     setChatHistory((prev) => [...prev, userMsg]);
 
-    // Example stubbed response — replace with axios.post when ready
-    const fakeBotReply = {
-      id: Date.now() + 1,
-      speaker: "bot",
-      markdown: `
-### Echo
+    // Wally's backend call to create a claim
+    axios
+      .post(
+        "http://127.0.0.1:5000/createClaim",
+        { claim: queryText },
+        { timeout: 60000 }
+      )
+      .then((res) => {
+        const botMsg = {
+          id: Date.now() + 1,
+          speaker: "bot",
+          markdown: res.data.response || "✅ Claim received!",
+        };
 
-You said: "${queryText}"
+        setChatHistory((prev) => [...prev, botMsg]);
 
-- This is a mock reply.
-- Replace with \`res.data.markdown\` from your API.
-`,
-    };
-    setTimeout(() => {
-      setChatHistory((prev) => [...prev, fakeBotReply]);
-      setQueryText("");
-    }, 500);
+        setClaims((prev) => [
+          ...prev,
+          { id: userMsg.id, title: queryText, date: now },
+        ]);
+      })
+      .catch((err) => {
+        console.error(err);
+        const botMsg = {
+          id: Date.now() + 1,
+          speaker: "bot",
+          markdown: "⚠️ Sorry, something went wrong.",
+        };
+        setChatHistory((prev) => [...prev, botMsg]);
+      })
+      .finally(() => {
+        setQueryText("");
+      });
   };
 
-  // User clicks a past claim in the sidebar
+  // Handles clicking on a previous query in the sidebar
   const handleQueryClick = (claim) => {
     const userMsg = {
       id: claim.id,
@@ -113,18 +143,21 @@ You said: "${queryText}"
     const botMsg = {
       id: claim.id + 1,
       speaker: "bot",
-      markdown: claim.markdown, // use markdown from mockClaims
+      markdown: claim.markdown,
     };
     setChatHistory([initialBot, userMsg, botMsg]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // Close sidebar on mobile after nav
+  // Closes sidebar on mobile
   const closeSidebarOnMobile = () => {
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
+  // ========================
+  //  **UI Rendering**
+  // ========================
   return (
     <div className="App">
       {/* Profile Avatar */}
@@ -136,7 +169,7 @@ You said: "${queryText}"
         <img src={userIcon} alt="Profile" className="profile-avatar" />
       </button>
 
-      {/* Hamburger & Overlay for mobile */}
+      {/* Hamburger menu & Overlay for mobile */}
       {windowWidth <= 800 && (
         <>
           <button
@@ -182,6 +215,9 @@ You said: "${queryText}"
   );
 }
 
+// ========================================
+//  **App Component with Router**
+// ========================================
 export default function App() {
   return (
     <BrowserRouter>

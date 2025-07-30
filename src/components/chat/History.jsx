@@ -1,3 +1,5 @@
+// gets the chat history from user and bot then displays it
+
 import React from "react";
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";

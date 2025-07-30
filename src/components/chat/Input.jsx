@@ -1,3 +1,6 @@
+// send message input fiel on the bottom of the chat
+// allows user to type and send messages
+
 import React from "react";
 import sendBtn from "../../assets/send.svg";
 

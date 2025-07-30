@@ -1,11 +1,10 @@
+// Sidebar component for navigation and displaying previous queries
+// Accepts props for controlling visibility, claims data, and event handlers
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
 import misinformantLogo from "../assets/Misinformant.svg";
 import msgIcon from "../assets/message.svg";
-import home from "../assets/home.svg";
-import saved from "../assets/bookmark.svg";
-import rocket from "../assets/rocket.svg";
 
 export default function Sidebar({
   isOpen,
@@ -75,33 +74,6 @@ export default function Sidebar({
           )}
         </nav>
       </div>
-
-      <footer className="sidebar__footer">
-        <button
-          type="button"
-          className="sidebar__nav-item"
-          onClick={() => handleNav("/")}
-        >
-          <img src={home} alt="" />
-          <span>Home</span>
-        </button>
-        <button
-          type="button"
-          className="sidebar__nav-item"
-          onClick={() => handleNav("/saved")}
-        >
-          <img src={saved} alt="" />
-          <span>Saved</span>
-        </button>
-        <button
-          type="button"
-          className="sidebar__nav-item"
-          onClick={() => handleNav("/upgrade")}
-        >
-          <img src={rocket} alt="" />
-          <span>Upgrade to Pro</span>
-        </button>
-      </footer>
     </aside>
   );
 }

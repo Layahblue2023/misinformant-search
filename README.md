@@ -16,7 +16,7 @@ Welcome to the **Misinformant Website Version**, a responsive web application de
 ```
 src/
 ├─ services/
-│  └─ claimsService.js   # Functions to fetch/create claims
+│  └─ claimsService.js   # Gets mock claims
 ├─ components/
 │  ├─ Sidebar.jsx        # Displays past claims
 │  ├─ History.jsx        # Renders chat log
@@ -24,25 +24,6 @@ src/
 │  └─ UserMessage.jsx    # Renders user messages
 └─ App.js                # Main app with chat logic and layout
 ```
-
-## 🤝 How It Works (in simple terms)
-
-1. **App** asks **claimsService** for all saved claims.
-2. **Sidebar** shows those claims as buttons.
-3. When you type a new claim and send:
-
-   - **App** calls `createClaim()`, gets back the new claim, and adds it to the list.
-
-4. When you click a claim on the sidebar:
-
-   - **App** adds a user message (the claim) and a bot message (the stored verdict).
-
-5. **History** looks at each message and uses:
-
-   - **BotMessage** for bot replies (renders Markdown), or
-   - **UserMessage** for user texts.
-
-6. The chat scroll shows the full conversation with avatars and styled bubbles.
 
 ## 🛠️ Run Locally
 
