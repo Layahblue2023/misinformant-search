@@ -1,11 +1,13 @@
-// shows the user's profile in a modal
-// allows user to view and edit their profile information
-
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import userIcon from "../assets/user-icon.png";
+import { useAuth } from "../context/AuthContext"; // ⬅️ import auth hook
 
 export default function ProfileModal({ onClose }) {
+  const dialogRef = useRef(null);
+  const firstFieldRef = useRef(null);
+  const { logout } = useAuth(); // ⬅️ access logout
+
   // Placeholder user data
   const user = {
     name: "John Doe",
@@ -14,168 +16,104 @@ export default function ProfileModal({ onClose }) {
     bio: "Curious researcher and avid reader.📚",
   };
 
-  // Inline styles
-  const backdropStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 2000,
-  };
+  // Focus management + ESC to close
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    firstFieldRef.current?.focus();
 
-  const modalStyle = {
-    backgroundColor: "rgba(28, 30, 58, 1)",
-    borderRadius: 8,
-    width: "600px",
-    maxWidth: "95%",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-    overflow: "hidden",
-  };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
 
-  const headerStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "16px 24px",
-    borderBottom: "1px solid #eee",
-  };
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
 
-  const titleStyle = {
-    margin: 0,
-    fontSize: "1.25rem",
-    fontWeight: 600,
-  };
+  const stop = (e) => e.stopPropagation();
 
-  const closeBtnStyle = {
-    background: "transparent",
-    border: "none",
-    fontSize: "1.5rem",
-    cursor: "pointer",
-    lineHeight: 1,
-    color: "#fff",
-  };
-
-  const bodyStyle = {
-    display: "flex",
-    padding: "24px",
-    gap: "24px",
-  };
-
-  const avatarContainerStyle = {
-    textAlign: "center",
-    flexShrink: 0,
-  };
-
-  const avatarStyle = {
-    width: 120,
-    height: 120,
-    borderRadius: "50%",
-    objectFit: "cover",
-    marginBottom: 12,
-  };
-
-  const editBtnStyle = {
-    padding: "6px 12px",
-    fontSize: "0.875rem",
-    borderRadius: 4,
-    border: "1px solid #ccc",
-    backgroundColor: "#f9f9f9",
-    cursor: "pointer",
-  };
-
-  const formStyle = {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  };
-
-  const fieldStyle = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-  };
-
-  const labelStyle = {
-    fontSize: "0.875rem",
-    fontWeight: 500,
-    color: "#fff",
-  };
-
-  const inputStyle = {
-    padding: "8px 12px",
-    fontSize: "1rem",
-    borderRadius: 4,
-    border: "1px solid #ccc",
-    outline: "none",
-  };
-
-  const actionsStyle = {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "12px",
-    marginTop: "12px",
-  };
-
-  const closeStyle = {
-    padding: "8px 16px",
-    fontSize: "0.875rem",
-    borderRadius: 4,
-    border: "1px solid #888",
-    backgroundColor: "#fff",
-    cursor: "pointer",
-  };
-
-  const saveStyle = {
-    padding: "8px 16px",
-    fontSize: "0.875rem",
-    borderRadius: 4,
-    border: "none",
-    backgroundColor: "#4f46e5",
-    color: "#fff",
-    cursor: "pointer",
+  const handleLogout = () => {
+    logout();
+    onClose(); // close modal after logging out
   };
 
   return ReactDOM.createPortal(
-    <div style={backdropStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-        <div style={headerStyle}>
-          <h2 style={titleStyle}>My profile</h2>
-          <button style={closeBtnStyle} onClick={onClose} aria-label="Close">
+    <div className="modal" onClick={onClose} aria-hidden="false">
+      <div
+        className="modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="profile-title"
+        onClick={stop}
+        ref={dialogRef}
+      >
+        <header className="modal__header">
+          <h2 id="profile-title" className="modal__title">
+            My profile
+          </h2>
+          <button className="modal__close" onClick={onClose} aria-label="Close">
             ×
           </button>
-        </div>
-        <div style={bodyStyle}>
-          <div style={avatarContainerStyle}>
-            <img src={userIcon} alt="User Avatar" style={avatarStyle} />
-          </div>
-          <form style={formStyle} onSubmit={(e) => e.preventDefault()}>
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Name</label>
-              <input type="text" defaultValue={user.name} style={inputStyle} />
-            </div>
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Email</label>
+        </header>
+
+        <div className="modal__body">
+          <aside className="profile__aside">
+            <img className="profile__avatar" src={userIcon} alt="User avatar" />
+            <button type="button" className="profile__avatar-btn">
+              Change photo
+            </button>
+          </aside>
+
+          <form className="profile__form" onSubmit={(e) => e.preventDefault()}>
+            <div className="profile__field">
+              <label className="profile__label" htmlFor="pf-name">
+                Name
+              </label>
               <input
-                type="email"
-                defaultValue={user.email}
-                style={inputStyle}
+                id="pf-name"
+                className="profile__input"
+                type="text"
+                defaultValue={user.name}
+                ref={firstFieldRef}
               />
             </div>
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Phone number (Main)</label>
-              <input type="tel" defaultValue={user.phone} style={inputStyle} />
+
+            <div className="profile__field">
+              <label className="profile__label" htmlFor="pf-email">
+                Email
+              </label>
+              <input
+                id="pf-email"
+                className="profile__input"
+                type="email"
+                defaultValue={user.email}
+              />
             </div>
-            <div style={actionsStyle}>
-              <button type="button" style={closeStyle} onClick={onClose}>
-                Close
+
+            <div className="profile__field">
+              <label className="profile__label" htmlFor="pf-phone">
+                Phone number (Main)
+              </label>
+              <input
+                id="pf-phone"
+                className="profile__input"
+                type="tel"
+                defaultValue={user.phone}
+              />
+            </div>
+
+            <div className="profile__actions">
+              <button
+                type="button"
+                className="btn btn--danger"
+                onClick={handleLogout}
+              >
+                Log out
               </button>
-              <button type="submit" style={saveStyle}>
+              <button type="submit" className="btn btn--primary">
                 Save
               </button>
             </div>

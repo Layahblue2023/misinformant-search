@@ -1,0 +1,433 @@
+/******************************************************************************/
+/* ******************************* Login **************************************/
+/******************************************************************************/
+:root {
+  --login-accent: #52b7e8;
+  --login-accent-2: #8fd9ff;
+  --login-panel: rgba(11, 34, 48, 0.96);
+  --login-border: rgba(255, 255, 255, 0.14);
+  --login-muted: rgba(255, 255, 255, 0.78);
+}
+
+/* Full-bleed gradient backdrop, centers content */
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.6rem, 4vh, 4rem) 2rem;
+  background: linear-gradient(135deg, #0a3b58, #0e4567);
+}
+
+/* Shell exists so we can add future art without touching the panel */
+.login__shell {
+  width: 100%;
+}
+
+/* Main panel — ~80vw on large screens, capped for readability */
+.login__panel {
+  width: min(110rem, 80vw); /* 110rem ≈ 1100px at 10px root */
+  margin: 0 auto;
+  background: var(--login-panel);
+  border: 1px solid var(--login-border);
+  border-radius: 2rem;
+  padding: clamp(2rem, 4vw, 5.6rem);
+  box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+/* Brand */
+.login__brand {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-bottom: clamp(0.8rem, 1vh, 1.6rem);
+}
+.login__brand-logo {
+  width: 26rem;
+  height: auto;
+}
+.login__brand-name {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.4rem, 2vw, 1.6rem);
+}
+
+/* Headings */
+.login__title {
+  font-size: clamp(2.2rem, 3vw, 2.8rem);
+  line-height: 1.12;
+  font-weight: 900;
+}
+.login__subtitle {
+  color: var(--login-muted);
+  margin: 0.6rem 0 2.4rem;
+  font-size: 1.6rem;
+}
+
+/* Form */
+.login__form {
+  display: grid;
+  gap: clamp(1.4rem, 2vh, 2rem);
+  max-width: 80rem;
+}
+.login__field {
+  display: grid;
+  gap: 0.8rem;
+}
+.login__label {
+  font-size: 1.5rem;
+}
+
+/* Inputs */
+.login__input-wrap {
+  position: relative;
+}
+.login__input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(8, 24, 36, 0.85);
+  color: #fff;
+  padding: 1.4rem 1.4rem;
+  border-radius: 1.2rem;
+  font-size: 1.6rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    transform 0.02s ease;
+}
+.login__input:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.login__input:focus {
+  outline: none;
+  border-color: var(--login-accent);
+  box-shadow: 0 0 0 0.4rem rgba(82, 183, 232, 0.35);
+}
+.login__input--with-btn {
+  padding-right: 7rem;
+}
+
+/* Small action button inside the input (Show/Hide) */
+.login__icon-btn {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(9, 27, 40, 0.7);
+  color: #fff;
+  padding: 0.8rem 1rem;
+  font-size: 1.3rem;
+  border-radius: 1rem;
+  cursor: pointer;
+}
+.login__icon-btn:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.login__icon-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.3rem rgba(82, 183, 232, 0.4);
+}
+
+/* CTA */
+.login__btn {
+  border: 0;
+  cursor: pointer;
+  border-radius: 1.4rem;
+  padding: 1.4rem 2.2rem;
+  font-weight: 900;
+  font-size: 1.6rem;
+  background: linear-gradient(
+    180deg,
+    var(--login-accent-2),
+    var(--login-accent)
+  );
+  color: #082032;
+  transition: transform 0.06s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+.login__btn:hover {
+  filter: brightness(1.04);
+}
+.login__btn:active {
+  transform: translateY(1px);
+}
+.login__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Row links */
+.login__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.login__help {
+  color: var(--login-muted);
+  font-size: 1.5rem;
+}
+.login__link {
+  color: var(--login-accent);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+.login__link:hover {
+  text-decoration: underline;
+}
+
+/* Error */
+.login__error {
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  color: #ffb2b2;
+  padding: 1rem 1.2rem;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 800px) {
+  .login__panel {
+    width: 100%;
+    padding: 2rem;
+    border-radius: 1.6rem;
+  }
+  .login__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+}
+
+/******************************************************************************/
+/* ******************************* Forgot / Auth ******************************/
+/******************************************************************************/
+:root {
+  --auth-accent: #52b7e8;
+  --auth-accent-2: #8fd9ff;
+  --auth-panel: rgba(11, 34, 48, 0.96);
+  --auth-border: rgba(255, 255, 255, 0.14);
+  --auth-muted: rgba(255, 255, 255, 0.78);
+}
+
+.auth {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.6rem, 4vh, 4rem) 2rem;
+  background: linear-gradient(135deg, #0a3b58, #0e4567);
+}
+
+.auth__container {
+  width: min(110rem, 90vw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 992px) {
+  .auth__container {
+    grid-template-columns: 1.1fr 0.9fr; /* form : hero */
+    gap: 3rem;
+  }
+}
+
+/* Panel (left) */
+.auth__panel {
+  background: var(--auth-panel);
+  border: 1px solid var(--auth-border);
+  border-radius: 2rem;
+  padding: clamp(2rem, 4vw, 5.6rem);
+  box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+/* Brand */
+.auth__brand {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-bottom: clamp(0.8rem, 1vh, 1.6rem);
+}
+.auth__brand--center {
+  justify-content: center;
+  text-align: center;
+}
+.auth__brand-logo {
+  width: clamp(6rem, 8vw, 10rem); /* Larger logo */
+  height: auto;
+  object-fit: contain;
+}
+.auth__brand-name {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.6rem, 2vw, 1.8rem);
+}
+.auth__brand-tag {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.4rem, 2vw, 1.6rem);
+}
+
+/* Titles */
+.auth__title {
+  font-size: clamp(2.2rem, 3vw, 2.8rem);
+  line-height: 1.12;
+  font-weight: 900;
+}
+.auth__subtitle {
+  color: var(--auth-muted);
+  margin: 0.6rem 0 2.4rem;
+  font-size: 1.6rem;
+}
+
+/* Form */
+.auth__form {
+  display: grid;
+  gap: clamp(1.4rem, 2vh, 2rem);
+  max-width: 70rem;
+}
+.auth__field {
+  display: grid;
+  gap: 0.8rem;
+}
+.auth__label {
+  font-size: 1.5rem;
+}
+
+/* Inputs */
+.auth__input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(8, 24, 36, 0.85);
+  color: #fff;
+  padding: 1.4rem 1.4rem;
+  border-radius: 1.2rem;
+  font-size: 1.6rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.auth__input:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.auth__input:focus {
+  outline: none;
+  border-color: var(--auth-accent);
+  box-shadow: 0 0 0 0.4rem rgba(82, 183, 232, 0.35);
+}
+
+/* Messages */
+.auth__msg {
+  padding: 1rem 1.2rem;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+}
+.auth__msg--ok {
+  background: rgba(64, 201, 140, 0.14);
+  border: 1px solid rgba(64, 201, 140, 0.45);
+  color: #b9f6d0;
+}
+.auth__msg--error {
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  color: #ffb2b2;
+}
+
+/* Button */
+.auth__btn {
+  border: 0;
+  cursor: pointer;
+  border-radius: 1.4rem;
+  padding: 1.4rem 2.2rem;
+  font-weight: 900;
+  font-size: 1.6rem;
+  background: linear-gradient(180deg, var(--auth-accent-2), var(--auth-accent));
+  color: #082032;
+  transition: transform 0.06s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+.auth__btn:hover {
+  filter: brightness(1.04);
+}
+.auth__btn:active {
+  transform: translateY(1px);
+}
+.auth__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer links */
+.auth__row {
+  margin-top: 1rem;
+}
+.auth__link {
+  color: var(--auth-accent);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+.auth__link:hover {
+  text-decoration: underline;
+}
+
+/* Right Hero */
+.auth__hero {
+  display: none;
+}
+@media (min-width: 992px) {
+  .auth__hero {
+    display: block;
+  }
+}
+.auth__hero-card {
+  height: 100%;
+  background: rgba(11, 34, 48, 0.55);
+  border: 1px solid var(--auth-border);
+  border-radius: 2rem;
+  padding: clamp(2rem, 3vw, 4rem);
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+.auth__hero-title {
+  font-size: clamp(2rem, 2.6vw, 2.6rem);
+  font-weight: 800;
+  margin: 1rem 0 0.6rem;
+  text-align: center;
+}
+.auth__hero-copy {
+  color: var(--auth-muted);
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0 auto 1.6rem;
+  max-width: 42rem;
+}
+
+/* Badges */
+.auth__badges {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.auth__badge {
+  font-size: 1.3rem;
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Optional: single-column variant (hide hero)
+   Add 'auth__container--no-hero' to .auth__container if you want no right side. */
+.auth__container--no-hero .auth__hero {
+  display: none !important;
+}
+.auth__container--no-hero {
+  grid-template-columns: 1fr !important;
+  width: min(90rem, 90vw);
+}

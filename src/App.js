@@ -1,8 +1,19 @@
+// src/App.js
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import axios from "axios";
 
 import "./App.css";
+import "./auth.css";
+import "./profile.css";
+
+// Existing app pieces (keep your current paths)
 import { getClaims } from "./services/claimServices";
 import Sidebar from "./components/Sidebar";
 import History from "./components/chat/History";
@@ -10,26 +21,25 @@ import Input from "./components/chat/Input";
 import ProfileModal from "./components/ProfileModal";
 import userIcon from "./assets/user-icon.png";
 
-function AppContent() {
-  // Initial bot message, now using markdown
+// Auth context + routes
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+// Auth pages located directly under src/pages
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+
+// -------------------------
+// Home (existing chat UI)
+// -------------------------
+function Home() {
   const initialBot = {
     id: Date.now(),
     speaker: "bot",
-    markdown: `
-## Welcome to MisInformant!
-
-*Want to know the truth?*`,
+    markdown: `## Welcome to MisInformant!\n\n*Want to know the truth?*`,
   };
 
-  // ========================
-  // **App State Management**
-  // 1. Stores the list of fetched mock claims from src/services/claimServices.js
-  // 2. Tracks the full conversation between the user and bot
-  // 3. Stores the current user input in the chat text field
-  // 4. Keeps track of the current window width
-  // 5. Controls whether the sidebar is visible
-  // 6. Controls whether the user profile modal is visible
-  // ========================
   const [claims, setClaims] = useState([]);
   const [chatHistory, setChatHistory] = useState([initialBot]);
   const [queryText, setQueryText] = useState("");
@@ -37,14 +47,10 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 800);
   const [showProfile, setShowProfile] = useState(false);
 
-  // ========================
-  // **useEffects**
-  // ========================
   useEffect(() => {
     getClaims().then((data) => setClaims(data));
   }, []);
 
-  // auto‐open/close sidebar
   useEffect(() => {
     const onResize = () => {
       const w = window.innerWidth;
@@ -55,13 +61,11 @@ function AppContent() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // disable sidebar scroll on mobile
   useEffect(() => {
     document.body.style.overflow =
       isSidebarOpen && windowWidth <= 800 ? "hidden" : "auto";
   }, [isSidebarOpen, windowWidth]);
 
-  // close sidebar or modal on Escape
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
@@ -73,18 +77,12 @@ function AppContent() {
     return () => window.removeEventListener("keydown", onKey);
   }, [isSidebarOpen, showProfile, windowWidth]);
 
-  // ========================
-  // **UI Handlers: user actions (clicking, typing, closing)**
-  // ========================
-
-  // Starts a new chat session.
   const handleNewChat = () => {
     setChatHistory([initialBot]);
     setQueryText("");
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // Sends user query to backend and displays bot response
   const handleSend = () => {
     if (!queryText.trim()) return;
 
@@ -95,10 +93,8 @@ function AppContent() {
       text: queryText,
     };
 
-    // Add user's message to chat history immediately
     setChatHistory((prev) => [...prev, userMsg]);
 
-    // Wally's backend call to create a claim
     axios
       .post(
         "http://127.0.0.1:5000/createClaim",
@@ -119,8 +115,7 @@ function AppContent() {
           { id: userMsg.id, title: queryText, date: now },
         ]);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         const botMsg = {
           id: Date.now() + 1,
           speaker: "bot",
@@ -133,7 +128,6 @@ function AppContent() {
       });
   };
 
-  // Handles clicking on a previous query in the sidebar
   const handleQueryClick = (claim) => {
     const userMsg = {
       id: claim.id,
@@ -150,17 +144,13 @@ function AppContent() {
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // Closes sidebar on mobile
   const closeSidebarOnMobile = () => {
     if (windowWidth <= 800) setIsSidebarOpen(false);
   };
 
-  // ========================
-  //  **UI Rendering**
-  // ========================
   return (
     <div className="App">
-      {/* Profile Avatar */}
+      {/* Profile */}
       <button
         className="profile-avatar-button"
         onClick={() => setShowProfile(true)}
@@ -169,7 +159,7 @@ function AppContent() {
         <img src={userIcon} alt="Profile" className="profile-avatar" />
       </button>
 
-      {/* Hamburger menu & Overlay for mobile */}
+      {/* Mobile hamburger + overlay */}
       {windowWidth <= 800 && (
         <>
           <button
@@ -198,7 +188,7 @@ function AppContent() {
         onNavClick={closeSidebarOnMobile}
       />
 
-      {/* Main Chat Area */}
+      {/* Main */}
       <main className="main">
         <History messages={chatHistory} />
         <Input
@@ -215,15 +205,28 @@ function AppContent() {
   );
 }
 
-// ========================================
-//  **App Component with Router**
-// ========================================
+// ---------------------------------
+// App with Router + AuthProvider
+// ---------------------------------
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AppContent />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          {/* Default route → login */}
+          <Route path="/" element={<Login />} />
+
+          {/* Auth routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Protect Home (chat) behind login if you want */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/home" element={<Home />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
